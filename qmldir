@@ -1,0 +1,4 @@
+// qmldir
+singleton FontAwesome FontAwesome.qml
+singleton Typicons Typicons.qml
+singleton ElusiveIcons ElusiveIcons.qml
