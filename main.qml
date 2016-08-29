@@ -114,6 +114,8 @@ ApplicationWindow {
                 id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: clipboard.copy(mouse.button == Qt.LeftButton? icon.text : name.text)
             }
         }
 
@@ -154,5 +156,19 @@ ApplicationWindow {
             if(model[i].toLowerCase().indexOf(searchTerm) > -1)
                 result.push(model[i])
         return result
+    }
+
+    Item {
+        id: clipboard
+        visible: false
+
+        function copy(text)
+        {   console.log("Copying : " + text)
+            helper.text = text
+            helper.selectAll()
+            helper.copy()
+        }
+
+        TextEdit { id: helper }
     }
 }
