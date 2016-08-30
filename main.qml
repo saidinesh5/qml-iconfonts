@@ -6,10 +6,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
@@ -17,11 +17,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  **/
 
 import QtQuick 2.0
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.4
 import '.'
 
 ApplicationWindow {
@@ -35,8 +35,8 @@ ApplicationWindow {
     property var availableFonts: ['Elusive Icons', 'Font Awesome', 'Typicons']
     property string currentFontName: fontSelector.currentText
     property var currentFont: currentFontName === 'Elusive Icons'? ElusiveIcons :
-                              currentFontName === 'Font Awesome'? FontAwesome :
-                                                                  Typicons
+                                                                   currentFontName === 'Font Awesome'? FontAwesome :
+                                                                                                       Typicons
 
     property alias searchTerm: searchField.text
 
@@ -71,51 +71,58 @@ ApplicationWindow {
         }
     }
 
-    GridView {
-        id: grid
-        width: parseInt(parent.width/cellWidth)*cellWidth
+    ScrollView {
+        width: parent.width
         anchors.bottom: parent.bottom
         anchors.top: header.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        clip: true
 
-        model: filter(currentFont.icons, searchTerm)
+        Rectangle { anchors.fill: parent }
 
-        property string longestName: largestItem(model)
-        cellHeight: 2*characterHeightLarge + 2*characterHeight
-        cellWidth: Math.max(characterWidthLarge*3,
-                            characterWidth*longestName.length +4*characterWidth)
+        GridView {
+            id: grid
+            clip: true
 
-        delegate: Rectangle {
-            visible: searchTerm === '' || modelData.indexOf(searchTerm) > -1
-            width: visible? grid.cellWidth : 0
-            height: visible? grid.cellHeight : 0
+            anchors.leftMargin: (parent.width - parseInt(root.width/cellWidth)*cellWidth)/2
 
-            border.color: mouseArea.containsMouse? 'black' : 'transparent'
-            radius: height*0.125
+            model: filter(currentFont.icons, searchTerm)
 
-            Behavior on border.color { ColorAnimation { duration: 200 } }
+            property string longestName: largestItem(model)
+            cellHeight: 2*characterHeightLarge + 2*characterHeight
+            cellWidth: Math.max(characterWidthLarge*3, characterWidth*(4+longestName.length))
 
-            Text {
-                id: icon
-                anchors.centerIn: parent
-                font.pointSize: largeFontSize
-                font.family: currentFont.fontName
-                text: currentFont.icon[modelData]
-            }
-            Text {
-                id: name
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                text: modelData
-            }
+            delegate: Rectangle {
+                visible: searchTerm === '' || modelData.indexOf(searchTerm) > -1
+                width: visible? grid.cellWidth : 0
+                height: visible? grid.cellHeight : 0
 
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                onClicked: clipboard.copy(mouse.button == Qt.LeftButton? icon.text : name.text)
+                color: 'transparent'
+
+                border.color: mouseArea.containsMouse? 'black' : 'transparent'
+                radius: height*0.125
+
+                Behavior on border.color { ColorAnimation { duration: 200 } }
+
+                Text {
+                    id: icon
+                    anchors.centerIn: parent
+                    font.pointSize: largeFontSize
+                    font.family: currentFont.fontName
+                    text: currentFont.icon[modelData]
+                }
+                Text {
+                    id: name
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    text: modelData
+                }
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: clipboard.copy(mouse.button == Qt.LeftButton? icon.text : name.text)
+                }
             }
         }
 
